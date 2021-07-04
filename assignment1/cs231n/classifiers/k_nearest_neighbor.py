@@ -77,7 +77,7 @@ class KNearestNeighbor(object):
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-                pass
+                dists[i][j] += np.power(self.X_train[j] - X[i], 2).sum()
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -85,8 +85,7 @@ class KNearestNeighbor(object):
     def compute_distances_one_loop(self, X):
         """
         Compute the distance between each test point in X and each training point
-        in self.X_train using a single loop over the test data.
-
+        in self.X_train using a single lpr
         Input / Output: Same as compute_distances_two_loops
         """
         num_test = X.shape[0]
@@ -101,7 +100,7 @@ class KNearestNeighbor(object):
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            dists[i] = ((self.X_train - X[i])**2).sum(axis=1)
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -131,8 +130,24 @@ class KNearestNeighbor(object):
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        X_sq_sum = np.expand_dims((X**2).sum(axis=1), axis=1)                          
+        X_train_sq_sum = np.expand_dims((self.X_train**2).sum(axis=1), axis=0)
+        dists = (X_sq_sum + X_train_sq_sum) - 2 * X.dot(self.X_train.T)
 
+        #########################################################################
+        #X_expanded = np.expand_dims(X, axis=2)
+        #print(X_expanded.shape)
+        #print(self.X_train.T.shape)
+        #print((X_expanded - self.X_train.T).sum(axis=1).shape)
+        #########################################################################
+        
+        #########################################################################
+        # Previous, bad solution                                                #
+        #X_sum = np.expand_dims(X.sum(axis=1), axis=1)                          #
+        #X_train_sum = np.expand_dims(self.X_train.sum(axis=1), axis=0)         #
+        #dists = (X_sum + X_train_sum)**2 - 4 * X.dot(self.X_train.T)           #
+        #########################################################################
+        
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
 
@@ -163,8 +178,11 @@ class KNearestNeighbor(object):
             # Hint: Look up the function numpy.argsort.                             #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-            pass
+            
+            closest_ind = np.argsort(dists[i], axis=0)
+            if len(closest_ind) > k:
+                closest_ind = closest_ind[:k]
+            closest_y = self.y_train[closest_ind]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
@@ -176,7 +194,8 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            unique, counts = np.unique(closest_y, return_counts=True)
+            y_pred[i] = unique[counts.argmax()]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
