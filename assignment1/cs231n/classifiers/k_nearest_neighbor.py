@@ -77,6 +77,8 @@ class KNearestNeighbor(object):
                 #####################################################################
                 # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+                dists[i, j] = np.sum(np.square(X[i, ...] - self.X_train[j, ...]))
+
                 pass
 
                 # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -101,7 +103,7 @@ class KNearestNeighbor(object):
             #######################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            dists[i, :] = np.sum(np.square(X[i, ...] - self.X_train), axis=1)
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -131,7 +133,12 @@ class KNearestNeighbor(object):
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # (a-b)^2 = a^2 + b^2 - 2ab
+
+        a2 = np.sum(X ** 2, axis=1, keepdims=True)
+        b2 = np.sum(self.X_train ** 2, axis=1)
+        ab = X @ self.X_train.T
+        dists = np.sqrt(a2 + b2 - 2 * ab)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
@@ -164,7 +171,8 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            indices = np.argsort(dists[i, ...])[:k]
+            closest_y = self.y_train[indices]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             #########################################################################
@@ -176,7 +184,9 @@ class KNearestNeighbor(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            uniq, count = np.unique(closest_y, return_counts=True)
+            most_pop = uniq[count == np.max(count)]
+            y_pred[i] = np.min(most_pop)
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
