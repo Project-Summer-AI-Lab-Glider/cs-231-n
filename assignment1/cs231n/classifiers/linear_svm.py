@@ -36,9 +36,6 @@ def svm_loss_naive(W, X, y, reg):
     num_train = X.shape[0]
     loss = 0.0
     
-    num_dim = W.shape[0]
-    h = 0.0001
-    
     for i in range(num_train):
         curr_loss = L_i_vectorized(X[i], y[i], W)
         loss += curr_loss
@@ -61,28 +58,20 @@ def svm_loss_naive(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    W_h = np.copy(W)
-    num_sample = 1
-    for k in range(num_dim):    
-        for j in range(num_classes):
-            W_h[k, j] = W_h[k, j] + h
-            scores = X.dot(W_h)
-            margins = np.maximum(0, scores - scores[y] + 1)
-            margins[y] = 0
-            W_h[k, j] = W_h[k, j] - h
-            loss_h = np.sum(margins) / num_train
-            
-            dW[k, j] += (loss_h - loss) / h
-            dW[k, j] /= num_train
-    '''
-    for i in range(num_sample if num_train > num_sample else num_train):
-        for k in range(num_dim):    
-            for j in range(num_classes):
-                W_h[k, j] = W_h[k, j] + h
-                loss_h = L_i_vectorized(X[i], y[i], W_h)
-                W_h[k, j] = W_h[k, j] - h
-                dW[k, j] += (loss_h - loss) / h
-    '''
+    
+    num_dim = W.shape[0]
+    h = 0.00001
+    for d in range(W.shape[0]):
+        for c in range(W.shape[1]):
+            old_value = W[d, c]
+            W[d, c] = old_value + h
+            loss_h = L_i_vectorized(X, y, W)
+            loss_h /= num_train
+            loss_h += reg * np.sum(W * W)
+            W[d, c] = old_value
+            dW[d, c] = (loss - loss_h) / h
+
+    
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     return loss, dW
@@ -124,7 +113,9 @@ def svm_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    
+    gradient_margin = (scores - scores[y] + 1)
+    dW = gradient_margin
+    print(dW.shape)
     
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
