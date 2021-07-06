@@ -136,17 +136,13 @@ class KNearestNeighbor(object):
         # dists (500, 5000)
 
 
-        train_part = np.sum(self.X_train, axis=1) ** 2
-        print(train_part.shape)
+        train_part = np.sum(self.X_train ** 2, axis=1)
 
         mult_part = np.dot(X, self.X_train.T)
-        print(mult_part.shape)
 
-        test_part = np.sum(X, axis=1) ** 2
-        print(test_part.shape)
+        test_part = np.sum(X ** 2, axis=1)
 
         dists = np.sqrt(train_part - 2 * mult_part + test_part[:, None])
-        print(dists.shape)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         return dists
