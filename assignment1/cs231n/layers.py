@@ -28,7 +28,8 @@ def affine_forward(x, w, b):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    xx = np.reshape(x, (x.shape[0], w.shape[0]))
+    out = xx @ w + b
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -61,7 +62,10 @@ def affine_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    xx = x.reshape((x.shape[0], w.shape[0]))
+    dx = (dout @ w.T).reshape(x.shape)
+    dw = xx.T @ dout
+    db = dout.sum(axis=0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -87,7 +91,7 @@ def relu_forward(x):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    out = np.where(x > 0, x, 0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -114,7 +118,7 @@ def relu_backward(dout, cache):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    dx = np.where(x > 0, dout, 0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
@@ -145,8 +149,19 @@ def svm_loss(x, y):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
-
+    N = x.shape[0]
+    C = x.shape[1]
+    
+    corresponding_values = np.choose(y, x.T)[:,None]
+    rest_of_values = x[np.arange(C) != y[:,None]].reshape(N, C -1)
+    margin = rest_of_values - corresponding_values + 1
+    rectified = np.where(margin > 0, margin, 0)
+    loss = np.sum(rectified) / N
+    
+    indicated = (rectified > 0).astype(int)
+    dx = np.insert(indicated.flatten(), np.arange(N) * (C-1) + y, -indicated.sum(axis=1)).reshape((N,C)) / N
+    
+    
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -176,7 +191,21 @@ def softmax_loss(x, y):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N = x.shape[0]
+    C = x.shape[1]
+    
+    corresponding_values = np.exp(np.choose(y, x.T)[:,None])
+    summed = np.exp(x).sum(axis=1).reshape((N, 1))
+    #print(corresponding_values.shape)
+    #print(summed.shape)
+    #print((corresponding_values / summed).shape)
+    #print("-" * 30)
+    
+    loss = -np.log(corresponding_values / summed).sum() / N
+    #loss = np.log(summed / corresponding_values).sum() / N
+    #loss = -np.log((corresponding_values / summed).prod()) / N
+    dx = corresponding_values / summed / N
+    #dx = (summed - (C - 1) * corresponding_values)/ summed ** 3 * corresponding_values ** 2 / N
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
