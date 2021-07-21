@@ -118,9 +118,9 @@ def svm_loss_vectorized(W, X, y, reg):
     D = W.shape[0]
     
     corresponding_values = np.choose(y, scores.T)[:,None]
-    rest_of_values = scores[np.arange(C) != y[:,None]].reshape(N, C -1)
+    rest_of_values = scores[np.arange(C) != y[:,None]].reshape(N, C - 1)
     margin = rest_of_values - corresponding_values + 1
-    rectified = np.where(margin > 0, margin, 0)
+    rectified = np.where(margin > 0, margin, 0) #COND? FIRST:SECOND
     loss = np.sum(rectified)/N + reg * np.sum(W * W)
     
     '''
